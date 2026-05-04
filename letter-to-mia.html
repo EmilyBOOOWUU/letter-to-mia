@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A Letter for Mia</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f5f0eb 0%, #e8ddd4 50%, #f2ece6 100%);
+  font-family: 'Georgia', 'Noto Serif SC', serif;
+  padding: 2rem;
+}
+
+.envelope-container {
+  perspective: 1200px;
+  width: 100%;
+  max-width: 560px;
+}
+
+.envelope {
+  position: relative;
+  width: 100%;
+  padding-bottom: 70%;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.envelope:hover {
+  transform: scale(1.02);
+}
+
+.envelope-body {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #faf7f4 0%, #f0ebe4 100%);
+  border-radius: 4px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08);
+  overflow: hidden;
+}
+
+.envelope-body::before {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border: 1.5px solid rgba(180, 160, 140, 0.3);
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+.envelope-flap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 55%;
+  background: linear-gradient(180deg, #efe8e0 0%, #f5f0eb 100%);
+  clip-path: polygon(0 0, 100% 0, 50% 80%);
+  transform-origin: top center;
+  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.envelope-flap::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background: linear-gradient(180deg, rgba(180,160,140,0.1) 0%, transparent 100%);
+  clip-path: polygon(0 0, 100% 0, 50% 80%);
+}
+
+.seal {
+  position: absolute;
+  top: 38%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 48px;
+  height: 48px;
+  background: radial-gradient(circle, #c4785a 0%, #a05a3c 100%);
+  border-radius: 50%;
+  z-index: 11;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(160, 90, 60, 0.4);
+  transition: opacity 0.4s ease;
+}
+
+.seal::after {
+  content: 'M';
+  color: #faf0e8;
+  font-size: 20px;
+  font-weight: bold;
+  font-family: 'Georgia', serif;
+}
+
+.envelope-inner-pattern {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 12px,
+    rgba(180, 160, 140, 0.06) 12px,
+    rgba(180, 160, 140, 0.06) 13px
+  );
+}
+
+.click-hint {
+  position: absolute;
+  bottom: 16%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 13px;
+  color: rgba(120, 100, 80, 0.7);
+  font-family: 'Georgia', 'Noto Serif SC', serif;
+  letter-spacing: 1px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+.envelope.opened .envelope-flap {
+  transform: rotateX(180deg);
+}
+
+.envelope.opened .seal {
+  opacity: 0;
+}
+
+.letter-container {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.5);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+  z-index: 100;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+.letter-container.visible {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.letter {
+  background: #fffcf8;
+  max-width: 640px;
+  width: 100%;
+  padding: 3.5rem 3rem;
+  border-radius: 2px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  transform: translateY(40px) scale(0.95);
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.letter-container.visible .letter {
+  transform: translateY(0) scale(1);
+}
+
+.letter::before {
+  content: '';
+  position: absolute;
+  top: 1.5rem;
+  left: 1.5rem;
+  right: 1.5rem;
+  bottom: 1.5rem;
+  border: 1px solid rgba(180, 160, 140, 0.2);
+  pointer-events: none;
+}
+
+.letter-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(180, 160, 140, 0.3);
+}
+
+.letter-header h1 {
+  font-size: 1.6rem;
+  color: #5a4a3a;
+  font-weight: normal;
+  letter-spacing: 2px;
+  margin-bottom: 0.5rem;
+}
+
+.letter-header .subtitle {
+  font-size: 0.85rem;
+  color: rgba(120, 100, 80, 0.6);
+  font-style: italic;
+}
+
+.letter-body {
+  color: #3a3028;
+  font-size: 0.95rem;
+  line-height: 2;
+  text-align: justify;
+}
+
+.letter-body p {
+  margin-bottom: 1.2rem;
+  text-indent: 2em;
+}
+
+.letter-body p:first-child {
+  text-indent: 0;
+}
+
+.letter-body .greeting {
+  text-indent: 0;
+  font-size: 1.05rem;
+  color: #5a4a3a;
+  margin-bottom: 1.5rem;
+}
+
+.letter-body .closing {
+  text-indent: 0;
+  text-align: right;
+  margin-top: 2rem;
+  font-style: italic;
+  color: #5a4a3a;
+}
+
+.close-btn {
+  position: absolute;
+  top: 0.8rem;
+  right: 0.8rem;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  font-size: 1.2rem;
+  color: rgba(120, 100, 80, 0.5);
+  cursor: pointer;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.close-btn:hover {
+  background: rgba(180, 160, 140, 0.15);
+  color: rgba(120, 100, 80, 0.9);
+}
+
+.flower-decoration {
+  position: absolute;
+  bottom: 2rem;
+  right: 2.5rem;
+  opacity: 0.15;
+  font-size: 3rem;
+  pointer-events: none;
+}
+
+@media (max-width: 600px) {
+  body { padding: 1rem; }
+  .letter { padding: 2.5rem 1.8rem; }
+  .letter-body { font-size: 0.9rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="envelope-container">
+  <div class="envelope" id="envelope">
+    <div class="envelope-body">
+      <div class="envelope-inner-pattern"></div>
+    </div>
+    <div class="envelope-flap"></div>
+    <div class="seal"></div>
+    <div class="click-hint">点击打开</div>
+  </div>
+</div>
+
+<div class="letter-container" id="letterContainer">
+  <div class="letter">
+    <button class="close-btn" id="closeBtn">&times;</button>
+    <div class="letter-header">
+      <h1>Mia Note</h1>
+      <div class="subtitle">written with gratitude</div>
+    </div>
+    <div class="letter-body">
+      <p class="greeting">Mia姐：</p>
+      <p>那天晚上和Curtis打完电话，想到你们俩下学期回来可能都见不到了，心里一下子有点空落落的。洗漱的时候，那些不舍的念头翻来覆去地在脑海里打转——我才意识到，和Curtis可能快四五个月见不到了。仿佛那个他和Simon打对抗、我们俩搓牛角包的夜晚，还只是几周前的事。</p>
+      <p>好多话见面时总想说，但聊着聊着又忘了，还是想着写一封信，也当作彼此对这一年的纪念吧。</p>
+      <p>大二最幸福的事之一，就是能认识你。</p>
+      <p>深圳长大的女孩，兴趣爱好和成长轨迹出奇地相似：我们有相对少见的姓，都和河南有些羁绊，都对烘焙烹饪有着不小的热情……这些像是命运悄悄织好的线，让我们在第一、第二次见面时就很快熟络起来。</p>
+      <p>那个吃着猪肉炖粉条、喝着莲藕汤的夜晚，真是令人难忘。</p>
+      <p>你给我讲了好多，我们也聊了好多。你分享了你觉得很酷的霸王茶姬，聊了和工业相关的项目，也毫不避讳地提到咨询里那些涉及人员调动的事情，还讲了你一路上遇到的导师带给你的成长。但最让我印象深刻的，还是我们聊起对圣母大学的体会。我第一次说出、也第一次意识到、并慢慢学着去和解的，是那种在圣母作为少数族裔时细小的不适——从SIBC，到喝酒、派对的文化等等。聊完之后，我对这个学校的拧巴感好像真的缓解了一些。在能建立自己朋友圈的同时，也接受并承认这些体验里存在的缺陷。我好像没跟你说过，上个学期，在我最后一次以Travel Team Member身份参与Bain Capital项目时，我终于可以坦坦荡荡地婉拒大半夜出去喝酒的邀请，心里也不再有那种"不合群"的负担。这个心态一定会让我更从容地度过剩下的两年。</p>
+      <p>求职的时候，每次觉得自己可能没戏了，都会想起你给我举的那些例子，总能重新燃起斗志。关于身心健康、工作与生活的平衡，如果没有机会和你深入聊这些话题，我的职业选择大概也会很不一样。谢谢你愿意给我分享这么多，让我这个总是喜欢反思、有时候反思到自我怀疑的人，能靠你过来人的经验对很多事情有所释怀和接纳。</p>
+      <p>听到你选择回国，你对选择的那份思考方式——严谨、通透、自信，又充满了勇气，也让我非常钦佩。</p>
+      <p>写到这里，笔有点挪不动了。感觉还有话想说，好像有太多话想说，但很多感谢的话已经说过了。多想让故事永远不要停止。可我也愿意相信，也一定坚信，就算你回国了，我们的联系也不会断。</p>
+      <p>哎呀，只是觉得芝加哥少了一个这么好的大姐姐，多少还是让人伤心的。</p>
+      <p>真的很感谢能遇见你、认识你。希望你人生的这一新篇章，从容、顺利，尽兴，前程似锦，平安、健康、自在。</p>
+      <p class="closing">此致 谢意</p>
+    </div>
+    <div class="flower-decoration">&#127800;</div>
+  </div>
+</div>
+
+<script>
+const envelope = document.getElementById('envelope');
+const letterContainer = document.getElementById('letterContainer');
+const closeBtn = document.getElementById('closeBtn');
+
+envelope.addEventListener('click', () => {
+  envelope.classList.add('opened');
+  setTimeout(() => {
+    letterContainer.classList.add('visible');
+  }, 600);
+});
+
+closeBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  letterContainer.classList.remove('visible');
+});
+
+letterContainer.addEventListener('click', (e) => {
+  if (e.target === letterContainer) {
+    letterContainer.classList.remove('visible');
+  }
+});
+</script>
+</body>
+</html>
